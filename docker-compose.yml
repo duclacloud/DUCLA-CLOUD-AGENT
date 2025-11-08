@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  ducla-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ducla-cloud-agent:latest
+    container_name: ducla-agent
+    hostname: ducla-agent-01
+    restart: unless-stopped
+    
+    environment:
+      # Agent configuration
+      - HOSTNAME=ducla-agent-01
+      - DUCLA_ENVIRONMENT=production
+      - DUCLA_REGION=us-east-1
+      - DUCLA_ZONE=us-east-1a
+      
+      # Master server connection
+      - DUCLA_MASTER_URL=${DUCLA_MASTER_URL:-https://master.ducla.cloud}
+      - DUCLA_AGENT_TOKEN=${DUCLA_AGENT_TOKEN}
+      
+      # Security
+      - DUCLA_JWT_SECRET=${DUCLA_JWT_SECRET}
+      
+      # Logging
+      - DUCLA_LOG_LEVEL=${DUCLA_LOG_LEVEL:-info}
+    
+    ports:
+      - "8080:8080"   # HTTP API
+      - "8081:8081"   # Health check
+      - "8443:8443"   # gRPC API
+      - "9090:9090"   # Metrics
+    
+    volumes:
+      # Configuration
+      - ./configs/agent.yaml:/etc/ducla/agent.yaml:ro
+      
+      # Data persistence
+      - ducla-data:/opt/ducla/data
+      - ducla-temp:/tmp/ducla
+      - ducla-logs:/var/log/ducla
+      
+      # TLS certificates (optional)
+      # - ./certs:/etc/ducla/tls:ro
+      
+      # Docker socket for Docker plugin (optional)
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
+    
+    networks:
+      - ducla-network
+    
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # Read-only root filesystem (optional, requires proper volume mounts)
+    # read_only: true
+
+volumes:
+  ducla-data:
+    driver: local
+  ducla-temp:
+    driver: local
+  ducla-logs:
+    driver: local
+
+networks:
+  ducla-network:
+    driver: bridge

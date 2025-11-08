@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ducla-system
+  labels:
+    name: ducla-system
+    app.kubernetes.io/name: ducla-cloud-agent
+    app.kubernetes.io/component: infrastructure

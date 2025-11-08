@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  ducla-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    image: ducla-cloud-agent:dev
+    container_name: ducla-agent-dev
+    hostname: ducla-agent-dev
+    
+    environment:
+      - HOSTNAME=ducla-agent-dev
+      - DUCLA_ENVIRONMENT=development
+      - DUCLA_REGION=us-east-1
+      - DUCLA_ZONE=us-east-1a
+      - DUCLA_MASTER_URL=${DUCLA_MASTER_URL:-http://localhost:8000}
+      - DUCLA_AGENT_TOKEN=${DUCLA_AGENT_TOKEN:-dev-token}
+      - DUCLA_JWT_SECRET=${DUCLA_JWT_SECRET:-dev-secret}
+      - DUCLA_LOG_LEVEL=debug
+    
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "8443:8443"
+      - "9090:9090"
+    
+    volumes:
+      # Mount source code for development
+      - .:/app
+      - ducla-data-dev:/opt/ducla/data
+      - ducla-temp-dev:/tmp/ducla
+      - ducla-logs-dev:/var/log/ducla
+    
+    networks:
+      - ducla-network-dev
+    
+    command: ["go", "run", "./cmd/agent", "--config", "/app/configs/agent.yaml"]
+
+volumes:
+  ducla-data-dev:
+  ducla-temp-dev:
+  ducla-logs-dev:
+
+networks:
+  ducla-network-dev:
+    driver: bridge

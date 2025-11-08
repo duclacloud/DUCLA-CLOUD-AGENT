@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ducla-system
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - configmap.yaml
+  - secret.yaml
+  - deployment.yaml
+  - service.yaml
+  - hpa.yaml
+  - pdb.yaml
+  - ingress.yaml
+  - servicemonitor.yaml
+
+commonLabels:
+  app.kubernetes.io/name: ducla-cloud-agent
+  app.kubernetes.io/component: agent
+  app.kubernetes.io/managed-by: kustomize
+
+images:
+  - name: ducla-cloud-agent
+    newTag: latest

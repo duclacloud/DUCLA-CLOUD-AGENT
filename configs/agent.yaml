@@ -1,0 +1,162 @@
+# Ducla Cloud Agent Configuration
+
+# Agent identification and metadata
+agent:
+  id: "${HOSTNAME}"                    # Agent unique identifier
+  name: "${HOSTNAME}"                  # Human-readable agent name
+  environment: "${DUCLA_ENVIRONMENT:-production}"  # Environment (dev, staging, prod)
+  region: "${DUCLA_REGION:-us-east-1}" # Geographic region
+  zone: "${DUCLA_ZONE:-us-east-1a}"    # Availability zone
+  tags:                                # Custom tags for agent classification
+    role: "worker"
+    team: "infrastructure"
+    cost_center: "engineering"
+  capabilities:                        # Agent capabilities
+    - "file_operations"
+    - "task_execution"
+    - "system_monitoring"
+    - "container_management"
+
+# Master server connection settings
+master:
+  url: "${DUCLA_MASTER_URL}"           # Master server URL (required)
+  token: "${DUCLA_AGENT_TOKEN}"        # Authentication token (required)
+  connect_timeout: 30s                 # Connection timeout
+  heartbeat_interval: 30s              # Heartbeat frequency
+  reconnect_interval: 10s              # Reconnect attempt interval
+  max_reconnect_attempts: 10           # Maximum reconnection attempts
+  tls_skip_verify: false               # Skip TLS certificate verification
+
+# API server configuration
+api:
+  http:
+    enabled: true
+    address: "0.0.0.0"
+    port: 8080
+    tls:
+      enabled: false
+      cert_file: "/etc/ducla/tls/server.crt"
+      key_file: "/etc/ducla/tls/server.key"
+      ca_file: "/etc/ducla/tls/ca.crt"
+  grpc:
+    enabled: true
+    address: "0.0.0.0"
+    port: 8443
+    tls:
+      enabled: true
+      cert_file: "/etc/ducla/tls/server.crt"
+      key_file: "/etc/ducla/tls/server.key"
+      ca_file: "/etc/ducla/tls/ca.crt"
+
+# Security configuration
+security:
+  jwt:
+    secret: "${DUCLA_JWT_SECRET:-default-secret-change-in-production}"
+    expiration: 24h
+    issuer: "ducla-cloud-agent"
+  rbac:
+    enabled: true
+    policy_file: "/etc/ducla/rbac.yaml"
+    default_role: "viewer"
+  audit:
+    enabled: true
+    log_file: "/var/log/ducla/audit.log"
+    max_size: 100      # MB
+    max_backups: 5
+    max_age: 30        # days
+  firewall:
+    enabled: false
+    allowed_ips:
+      # Private network ranges (RFC 1918)
+      - "10.0.0.0/8"          # Class A private (10.0.0.0 - 10.255.255.255)
+      - "172.16.0.0/12"       # Class B private (172.16.0.0 - 172.31.255.255)
+      - "192.168.0.0/16"      # Class C private (192.168.0.0 - 192.168.255.255)
+      # Loopback
+      - "127.0.0.0/8"         # Loopback (127.0.0.0 - 127.255.255.255)
+      # Link-local
+      - "169.254.0.0/16"      # Link-local (169.254.0.0 - 169.254.255.255)
+      # Add your specific public IPs or ranges here
+      # - "203.0.113.0/24"    # Example: Your office public IP range
+      # - "198.51.100.50/32"  # Example: Specific master server IP
+    blocked_ips: 
+      # Block known malicious ranges (examples)
+      # - "0.0.0.0/8"         # "This" network
+      # - "224.0.0.0/4"       # Multicast
+      # - "240.0.0.0/4"       # Reserved for future use
+    rate_limiting: true
+    requests_per_min: 1000
+
+# Storage configuration
+storage:
+  data_dir: "/opt/ducla/data"
+  temp_dir: "/tmp/ducla"
+  max_file_size: 104857600  # 100MB in bytes
+  cleanup:
+    enabled: true
+    interval: 1h
+    max_age: 24h
+    max_disk_usage: 80  # percentage
+
+# Logging configuration
+logging:
+  level: "${DUCLA_LOG_LEVEL:-info}"    # debug, info, warn, error
+  format: "json"                       # json, text
+  output: "stdout"                     # stdout, stderr, file path
+  max_size: 100                        # MB (for file output)
+  max_backups: 5
+  max_age: 30                          # days
+  compress: true
+
+# Metrics collection
+metrics:
+  enabled: true
+  address: "0.0.0.0"
+  port: 9090
+  path: "/metrics"
+  interval: 15s
+  collectors:
+    - "system"
+    - "process"
+    - "agent"
+    - "tasks"
+    - "files"
+
+# Health checks
+health:
+  enabled: true
+  address: "0.0.0.0"
+  port: 8081
+  path: "/health"
+  interval: 30s
+  timeout: 5s
+
+# Plugin system
+plugins:
+  enabled: true
+  directory: "/opt/ducla/plugins"
+  plugins:
+    docker:
+      enabled: true
+      path: "docker.so"
+      config:
+        socket: "/var/run/docker.sock"
+        timeout: 30s
+    kubernetes:
+      enabled: false
+      path: "kubernetes.so"
+      config:
+        kubeconfig: "/etc/ducla/kubeconfig"
+        namespace: "default"
+    aws:
+      enabled: false
+      path: "aws.so"
+      config:
+        region: "${AWS_REGION:-us-east-1}"
+        profile: "${AWS_PROFILE:-default}"
+
+# Task executor configuration
+executor:
+  max_concurrent_tasks: 10
+  task_timeout: 30m
+  worker_pool_size: 5
+  queue_size: 100

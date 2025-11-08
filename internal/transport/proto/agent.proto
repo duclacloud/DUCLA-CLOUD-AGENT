@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package transport;
+
+option go_package = "github.com/ducla/cloud-agent/internal/transport";
+
+// AgentService defines the gRPC service for agent-master communication
+service AgentService {
+  // Stream establishes a bidirectional stream for real-time communication
+  rpc Stream(stream StreamMessage) returns (stream StreamMessage);
+  
+  // SendTask sends a task to the agent
+  rpc SendTask(TaskRequest) returns (TaskResponse);
+  
+  // GetStatus retrieves agent status
+  rpc GetStatus(StatusRequest) returns (StatusResponse);
+  
+  // ExecuteCommand executes a command on the agent
+  rpc ExecuteCommand(CommandRequest) returns (CommandResponse);
+  
+  // TransferFile transfers a file to/from the agent
+  rpc TransferFile(stream FileChunk) returns (FileTransferResponse);
+}
+
+// StreamMessage represents a message in the bidirectional stream
+message StreamMessage {
+  string id = 1;
+  string type = 2;
+  int64 timestamp = 3;
+  string agent_id = 4;
+  string reply_to = 5;
+  bytes data = 6;
+  map<string, string> metadata = 7;
+}
+
+// TaskRequest represents a task execution request
+message TaskRequest {
+  string task_id = 1;
+  string task_type = 2;
+  string command = 3;
+  repeated string args = 4;
+  map<string, string> env = 5;
+  string working_dir = 6;
+  int32 timeout = 7;
+  map<string, string> metadata = 8;
+}
+
+// TaskResponse represents a task execution response
+message TaskResponse {
+  string task_id = 1;
+  string status = 2;
+  int32 exit_code = 3;
+  string stdout = 4;
+  string stderr = 5;
+  int64 started_at = 6;
+  int64 finished_at = 7;
+  string error = 8;
+}
+
+// StatusRequest requests agent status
+message StatusRequest {
+  bool include_metrics = 1;
+  bool include_tasks = 2;
+}
+
+// StatusResponse contains agent status information
+message StatusResponse {
+  string agent_id = 1;
+  string status = 2;
+  string version = 3;
+  int64 uptime = 4;
+  SystemMetrics metrics = 5;
+  repeated TaskInfo running_tasks = 6;
+  map<string, string> metadata = 7;
+}
+
+// SystemMetrics contains system metrics
+message SystemMetrics {
+  double cpu_usage = 1;
+  double memory_usage = 2;
+  double disk_usage = 3;
+  int64 network_rx = 4;
+  int64 network_tx = 5;
+  int32 process_count = 6;
+}
+
+// TaskInfo contains information about a task
+message TaskInfo {
+  string task_id = 1;
+  string task_type = 2;
+  string status = 3;
+  int64 started_at = 4;
+  int32 progress = 5;
+}
+
+// CommandRequest represents a command execution request
+message CommandRequest {
+  string command = 1;
+  repeated string args = 2;
+  map<string, string> env = 3;
+  string working_dir = 4;
+  int32 timeout = 5;
+  bool capture_output = 6;
+}
+
+// CommandResponse represents a command execution response
+message CommandResponse {
+  int32 exit_code = 1;
+  string stdout = 2;
+  string stderr = 3;
+  int64 execution_time = 4;
+  string error = 5;
+}
+
+// FileChunk represents a chunk of file data
+message FileChunk {
+  string file_id = 1;
+  string filename = 2;
+  int64 offset = 3;
+  bytes data = 4;
+  int64 total_size = 5;
+  bool is_last = 6;
+  map<string, string> metadata = 7;
+}
+
+// FileTransferResponse represents a file transfer response
+message FileTransferResponse {
+  string file_id = 1;
+  string status = 2;
+  int64 bytes_transferred = 3;
+  string checksum = 4;
+  string error = 5;
+}

@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ducla-agent
+  namespace: ducla-system
+  labels:
+    app: ducla-agent
+spec:
+  type: ClusterIP
+  selector:
+    app: ducla-agent
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+    protocol: TCP
+  - name: grpc
+    port: 8443
+    targetPort: grpc
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: metrics
+    protocol: TCP
+  sessionAffinity: ClientIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ducla-agent-headless
+  namespace: ducla-system
+  labels:
+    app: ducla-agent
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector:
+    app: ducla-agent
+  ports:
+  - name: http
+    port: 8080
+    targetPort: http
+    protocol: TCP
+  - name: grpc
+    port: 8443
+    targetPort: grpc
+    protocol: TCP

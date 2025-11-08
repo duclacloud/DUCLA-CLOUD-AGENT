@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ducla-agent-config
+  namespace: ducla-system
+  labels:
+    app: ducla-agent
+data:
+  agent.yaml: |
+    # Ducla Cloud Agent Configuration
+    agent:
+      id: "${HOSTNAME}"
+      name: "${HOSTNAME}"
+      environment: "${DUCLA_ENVIRONMENT:-production}"
+      region: "${DUCLA_REGION:-us-east-1}"
+      zone: "${DUCLA_ZONE:-us-east-1a}"
+      tags:
+        role: "worker"
+        team: "infrastructure"
+        cost_center: "engineering"
+      capabilities:
+        - "file_operations"
+        - "task_execution"
+        - "system_monitoring"
+        - "container_management"
+
+    master:
+      url: "${DUCLA_MASTER_URL}"
+      token: "${DUCLA_AGENT_TOKEN}"
+      connect_timeout: 30s
+      heartbeat_interval: 30s
+      reconnect_interval: 10s
+      max_reconnect_attempts: 10
+      tls_skip_verify: false
+
+    api:
+      http:
+        enabled: true
+        address: "0.0.0.0"
+        port: 8080
+        tls:
+          enabled: false
+      grpc:
+        enabled: true
+        address: "0.0.0.0"
+        port: 8443
+        tls:
+          enabled: false
+
+    security:
+      jwt:
+        secret: "${DUCLA_JWT_SECRET}"
+        expiration: 24h
+        issuer: "ducla-cloud-agent"
+      rbac:
+        enabled: true
+        default_role: "viewer"
+      audit:
+        enabled: true
+        log_file: "/var/log/ducla/audit.log"
+        max_size: 100
+        max_backups: 5
+        max_age: 30
+
+    storage:
+      data_dir: "/opt/ducla/data"
+      temp_dir: "/tmp/ducla"
+      max_file_size: 104857600
+      cleanup:
+        enabled: true
+        interval: 1h
+        max_age: 24h
+        max_disk_usage: 80
+
+    logging:
+      level: "${DUCLA_LOG_LEVEL:-info}"
+      format: "json"
+      output: "stdout"
+      max_size: 100
+      max_backups: 5
+      max_age: 30
+      compress: true
+
+    metrics:
+      enabled: true
+      address: "0.0.0.0"
+      port: 9090
+      path: "/metrics"
+      interval: 15s
+      collectors:
+        - "system"
+        - "process"
+        - "agent"
+        - "tasks"
+        - "files"
+
+    health:
+      enabled: true
+      address: "0.0.0.0"
+      port: 8081
+      path: "/health"
+      interval: 30s
+      timeout: 5s
+
+    executor:
+      max_concurrent_tasks: 10
+      task_timeout: 30m
+      worker_pool_size: 5
+      queue_size: 100

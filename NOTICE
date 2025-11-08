@@ -1,0 +1,30 @@
+DUCLA CLOUD  Monitoring Agent
+Copyright 2025 DUCLA CLOUD
+
+This product includes software developed by DUCLA CLOUD.
+
+Portions of this software are licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at:
+    http://www.apache.org/licenses/LICENSE-2.0
+
+This product includes components from open source projects:
+
+- AWS SDK for Go (https://aws.amazon.com/sdk-for-go/)
+  Licensed under the Apache License, Version 2.0
+
+- Amazon CloudWatch Agent (https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Install-CloudWatch-Agent.html)
+  Licensed under the Apache License, Version 2.0
+
+- Datadog Agent (optional integration)
+  Licensed under the Apache License, Version 2.0
+
+Modifications made by DUCLA CLOUD:
+- Added unified agent installer for Amazon Linux 2023 and Windows Server 2019
+- Added custom service auto-registration for AWS Systems Manager (SSM)
+- Enhanced log pipeline integration with Fluent Bit and CloudWatch Logs
+- Added telemetry for system metrics and EC2 metadata discovery
+- Improved configuration management for hybrid AWS environments
+
+Trademark Notice:
+"DUCLA CLOUD" are trademarks of DUCLA CLOUD.  
+All other trademarks and service marks are property of their respective owners.

@@ -101,6 +101,48 @@ ducla-agent show config
 
 ---
 
+## 🔧 Systemd Service Test
+
+### Initial Issue
+- **Problem**: Service failed with `exit-code=226/NAMESPACE` error
+- **Cause**: `PrivateTmp=true` and `/tmp/ducla` path conflicts
+- **Error**: `Failed to set up mount namespacing`
+
+### Fix Applied
+```bash
+# Updated service configuration
+sudo systemctl stop ducla-agent
+# Removed PrivateTmp=true and /tmp/ducla references
+# Simplified security settings
+sudo systemctl daemon-reload
+sudo systemctl start ducla-agent
+```
+
+### Service Status After Fix
+```bash
+sudo systemctl status ducla-agent
+# Result: ✅ SUCCESS
+# Active: active (running)
+# Memory: 2.4M
+# Tasks: 7
+# All services started successfully:
+# - API server on port 8080
+# - Health server on port 8081  
+# - Metrics server on port 9090
+```
+
+### Service Test Results
+- ✅ **Service Start**: Successful
+- ✅ **API Endpoints**: All responding correctly
+- ✅ **Health Check**: HTTP 200 OK
+- ✅ **Metrics**: Prometheus metrics available
+- ✅ **Auto-start**: Enabled for boot
+- ✅ **Logging**: Proper systemd journal integration
+
+### Systemd Service Rating: ⭐⭐⭐⭐⭐ (5/5)
+
+---
+
 ## 🎯 Overall Test Results
 
 ### ✅ What Works Perfectly
@@ -117,6 +159,7 @@ ducla-agent show config
 - **Memory Usage**: Efficient binary (~17MB)
 - **Startup Time**: Fast initialization
 - **Error Handling**: Proper error messages and exit codes
+- **Systemd Service**: ✅ **FIXED** - Service runs successfully after namespace fix
 
 ### 📊 Performance Metrics
 - **Binary Size**: 17MB (optimized)
@@ -145,6 +188,10 @@ ducla-agent show config
 sudo dpkg -i ducla-agent_1.0.0_amd64.deb
 sudo systemctl enable ducla-agent
 sudo systemctl start ducla-agent
+
+# Verify service status
+sudo systemctl status ducla-agent
+# Should show: Active: active (running)
 ```
 
 #### For RHEL/CentOS Systems

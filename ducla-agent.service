@@ -1,0 +1,24 @@
+[Unit]
+Description=Ducla Cloud Agent
+Documentation=https://github.com/duclacloud/DUCLA-CLOUD-AGENT
+After=network.target
+
+[Service]
+Type=simple
+User=ducla
+Group=ducla
+WorkingDirectory=/opt/ducla
+ExecStart=/usr/bin/ducla-agent -config /etc/ducla/agent.yaml
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ducla-agent
+
+# Simplified security settings
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/ducla /var/log/ducla
+
+[Install]
+WantedBy=multi-user.target

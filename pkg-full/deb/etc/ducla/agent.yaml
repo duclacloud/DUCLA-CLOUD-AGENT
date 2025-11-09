@@ -1,0 +1,55 @@
+# Ducla Cloud Agent Configuration
+agent:
+  id: "${HOSTNAME}"
+  name: "${HOSTNAME}"
+  environment: "production"
+  region: "local"
+  capabilities:
+    - "file_operations"
+    - "task_execution"
+    - "system_monitoring"
+
+master:
+  url: ""
+  token: ""
+  max_reconnect_attempts: 0
+
+api:
+  http:
+    enabled: true
+    address: "0.0.0.0"
+    port: 8080
+    tls:
+      enabled: false
+
+security:
+  auth:
+    enabled: false
+
+storage:
+  data_dir: "/opt/ducla/data"
+  temp_dir: "/tmp/ducla"
+  cleanup:
+    enabled: true
+    interval: 1h
+    max_age: 24h
+
+logging:
+  level: "info"
+  format: "json"
+  output: "/var/log/ducla/agent.log"
+
+metrics:
+  enabled: true
+  address: "0.0.0.0"
+  port: 9090
+
+health:
+  enabled: true
+  address: "0.0.0.0"
+  port: 8081
+
+executor:
+  workers: 5
+  queue_size: 100
+  task_timeout: 300s

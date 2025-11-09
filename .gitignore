@@ -19,8 +19,6 @@ go.work
 
 # Build artifacts
 dist/
-pkg/
-pkg-full/
 packaging/
 
 # Configuration files (keep examples and default)

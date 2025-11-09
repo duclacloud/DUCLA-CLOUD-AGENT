@@ -1,0 +1,16 @@
+[Unit]
+Description=Ducla Cloud Agent
+Documentation=https://github.com/duclacloud/DUCLA-CLOUD-AGENT
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ducla-agent -config /etc/ducla/agent.yaml
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ducla-agent
+
+[Install]
+WantedBy=multi-user.target

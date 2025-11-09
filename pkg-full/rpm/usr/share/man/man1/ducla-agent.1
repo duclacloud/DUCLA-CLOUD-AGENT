@@ -1,0 +1,349 @@
+.TH DUCLA-AGENT 1 "November 2025" "Ducla Cloud Agent 1.0.0" "User Commands"
+.SH NAME
+ducla-agent \- High-performance cloud agent for distributed task execution and system monitoring
+.SH SYNOPSIS
+.B ducla-agent
+[\fIOPTION\fR]... [\fICOMMAND\fR]
+.SH DESCRIPTION
+.B ducla-agent
+is a high-performance cloud agent written in Go, designed for distributed task execution, file operations, and system monitoring in production environments.
+
+The agent can run in standalone mode or connect to a master server for distributed coordination. It provides REST APIs for task management, file operations, health monitoring, and metrics collection.
+
+.SH OPTIONS
+.TP
+.BR \-c ", " \-\-config =\fIFILE\fR
+Specify configuration file path (default: /etc/ducla/agent.yaml)
+.TP
+.BR \-d ", " \-\-debug
+Enable debug logging
+.TP
+.BR \-v ", " \-\-version
+Show version information and exit
+.TP
+.BR \-h ", " \-\-help
+Show help message and exit
+
+.SH COMMANDS
+.TP
+.B start
+Start the agent daemon (default command)
+.TP
+.B show status
+Display agent runtime status and statistics
+.TP
+.B show health
+Display system health information
+.TP
+.B show metrics
+Display current metrics
+.TP
+.B show config
+Display current configuration
+.TP
+.B show tasks
+List all tasks
+.TP
+.B show tasks running
+List only running tasks
+.TP
+.B show version
+Display version information
+.TP
+.B task create \fICOMMAND\fR
+Create and execute a new task
+.TP
+.B task cancel \fITASK_ID\fR
+Cancel a running task
+.TP
+.B task logs \fITASK_ID\fR
+Show logs for a specific task
+.TP
+.B file list \fIPATH\fR
+List files in the specified directory
+.TP
+.B file copy \fISOURCE\fR \fIDEST\fR
+Copy file from source to destination
+.TP
+.B file move \fISOURCE\fR \fIDEST\fR
+Move file from source to destination
+.TP
+.B file delete \fIPATH\fR
+Delete file or directory
+.TP
+.B config validate
+Validate configuration file
+.TP
+.B config test
+Test configuration and connectivity
+
+.SH CONFIGURATION
+The agent is configured via YAML file. Default locations:
+.IP \(bu 2
+/etc/ducla/agent.yaml (system-wide)
+.IP \(bu 2
+~/.ducla/agent.yaml (user-specific)
+.IP \(bu 2
+./agent.yaml (current directory)
+
+.SS Configuration Sections
+.TP
+.B agent
+Agent identification and capabilities
+.TP
+.B master
+Master server connection settings
+.TP
+.B api
+HTTP and gRPC API configuration
+.TP
+.B security
+Authentication and authorization settings
+.TP
+.B storage
+Data storage and cleanup configuration
+.TP
+.B logging
+Log level and output configuration
+.TP
+.B metrics
+Prometheus metrics configuration
+.TP
+.B health
+Health check configuration
+.TP
+.B executor
+Task execution settings
+
+.SH API ENDPOINTS
+The agent exposes several HTTP endpoints:
+
+.SS HTTP REST API (Port 8080)
+.IP \(bu 2
+GET /api/v1/status - Agent status
+.IP \(bu 2
+GET /api/v1/tasks - List tasks
+.IP \(bu 2
+POST /api/v1/tasks - Create task
+.IP \(bu 2
+GET /api/v1/tasks/{id} - Task details
+.IP \(bu 2
+DELETE /api/v1/tasks/{id} - Cancel task
+.IP \(bu 2
+POST /api/v1/files - File operations
+
+.SS Health Check API (Port 8081)
+.IP \(bu 2
+GET /health - Health status
+.IP \(bu 2
+GET /ready - Readiness check
+
+.SS Metrics API (Port 9090)
+.IP \(bu 2
+GET /metrics - Prometheus metrics
+
+.SH EXAMPLES
+.TP
+Start the agent with default configuration:
+.B ducla-agent
+
+.TP
+Start with custom configuration:
+.B ducla-agent -c /path/to/config.yaml
+
+.TP
+Show agent status:
+.B ducla-agent show status
+
+.TP
+Show system health:
+.B ducla-agent show health
+
+.TP
+List all tasks:
+.B ducla-agent show tasks
+
+.TP
+Create a simple task:
+.B ducla-agent task create "echo 'Hello World'"
+
+.TP
+List files in a directory:
+.B ducla-agent file list /tmp
+
+.TP
+Copy a file:
+.B ducla-agent file copy /tmp/source.txt /tmp/dest.txt
+
+.TP
+Validate configuration:
+.B ducla-agent config validate
+
+.TP
+Enable debug logging:
+.B ducla-agent -d
+
+.SH FILES
+.TP
+.I /etc/ducla/agent.yaml
+System-wide configuration file
+.TP
+.I ~/.ducla/agent.yaml
+User-specific configuration file
+.TP
+.I /var/log/ducla/agent.log
+Default log file location
+.TP
+.I /opt/ducla/data
+Default data directory
+.TP
+.I /tmp/ducla
+Default temporary directory
+.TP
+.I /etc/systemd/system/ducla-agent.service
+Systemd service file
+
+.SH ENVIRONMENT VARIABLES
+.TP
+.B DUCLA_CONFIG
+Override default configuration file path
+.TP
+.B DUCLA_LOG_LEVEL
+Override log level (debug, info, warn, error)
+.TP
+.B DUCLA_API_PORT
+Override HTTP API port
+.TP
+.B DUCLA_MASTER_URL
+Override master server URL
+.TP
+.B DUCLA_MASTER_TOKEN
+Override master server authentication token
+
+.SH SYSTEMD SERVICE
+The agent can be managed as a systemd service:
+
+.TP
+Start the service:
+.B sudo systemctl start ducla-agent
+
+.TP
+Stop the service:
+.B sudo systemctl stop ducla-agent
+
+.TP
+Check service status:
+.B sudo systemctl status ducla-agent
+
+.TP
+View service logs:
+.B sudo journalctl -u ducla-agent -f
+
+.TP
+Enable auto-start:
+.B sudo systemctl enable ducla-agent
+
+.SH MONITORING
+The agent provides comprehensive monitoring capabilities:
+
+.SS Health Checks
+.IP \(bu 2
+System health (CPU, memory, disk)
+.IP \(bu 2
+Network connectivity
+.IP \(bu 2
+Service availability
+.IP \(bu 2
+Custom health checks
+
+.SS Metrics
+.IP \(bu 2
+System metrics (CPU, memory, disk, network)
+.IP \(bu 2
+Process metrics
+.IP \(bu 2
+Task execution metrics
+.IP \(bu 2
+File operation metrics
+.IP \(bu 2
+Custom application metrics
+
+.SH SECURITY
+.SS Authentication
+The agent supports JWT-based authentication for API access.
+
+.SS Authorization
+Role-based access control (RBAC) can be configured for fine-grained permissions.
+
+.SS TLS Encryption
+All API endpoints can be configured with TLS encryption.
+
+.SS Audit Logging
+All operations can be logged for security auditing.
+
+.SH TROUBLESHOOTING
+.SS Common Issues
+.TP
+.B Permission denied
+Ensure the agent user has proper permissions for data and log directories.
+
+.TP
+.B Port already in use
+Check if another service is using the configured ports (8080, 8081, 9090).
+
+.TP
+.B Configuration errors
+Use \fBducla-agent config validate\fR to check configuration syntax.
+
+.TP
+.B Connection refused
+Verify network connectivity and firewall settings.
+
+.SS Debug Mode
+Enable debug logging with the \fB-d\fR flag for detailed troubleshooting information.
+
+.SS Log Files
+Check log files for error messages:
+.IP \(bu 2
+/var/log/ducla/agent.log (file logging)
+.IP \(bu 2
+journalctl -u ducla-agent (systemd logging)
+
+.SH EXIT STATUS
+.TP
+.B 0
+Success
+.TP
+.B 1
+General error
+.TP
+.B 2
+Configuration error
+.TP
+.B 3
+Network error
+.TP
+.B 4
+Permission error
+
+.SH AUTHOR
+mandỵhades <mandỵhades@hotmail.com.vn>
+
+.SH REPORTING BUGS
+Report bugs to: https://github.com/duclacloud/DUCLA-CLOUD-AGENT/issues
+
+.SH COPYRIGHT
+Copyright © 2025 mandỵhades. License MIT.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+.SH SEE ALSO
+.BR systemctl (1),
+.BR journalctl (1),
+.BR curl (1),
+.BR yaml (5)
+
+Full documentation: https://github.com/duclacloud/DUCLA-CLOUD-AGENT
+
+.SH VERSION
+ducla-agent 1.0.0

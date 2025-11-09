@@ -316,11 +316,9 @@ func (c *Config) setDefaults() {
 
 // Validate validates the configuration
 func (c *Config) Validate() error {
-	if c.Master.URL == "" {
-		return fmt.Errorf("master.url is required")
-	}
-	if c.Master.Token == "" {
-		return fmt.Errorf("master.token is required")
+	// Allow standalone mode (no master connection)
+	if c.Master.URL != "" && c.Master.Token == "" {
+		return fmt.Errorf("master.token is required when master.url is provided")
 	}
 	if c.Agent.ID == "" {
 		return fmt.Errorf("agent.id is required")

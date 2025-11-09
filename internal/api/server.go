@@ -8,7 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ducla/cloud-agent/internal/config"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/config"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/executor"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/fileops"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
@@ -44,19 +46,19 @@ type AgentInterface interface {
 
 // ExecutorInterface defines the interface for task executor
 type ExecutorInterface interface {
-	SubmitTask(task interface{}) (string, error)
-	GetTask(taskID string) (interface{}, error)
-	GetTaskResult(taskID string) (interface{}, error)
+	SubmitTask(task *executor.Task) (string, error)
+	GetTask(taskID string) (*executor.Task, error)
+	GetTaskResult(taskID string) (*executor.TaskResult, error)
 	CancelTask(taskID string) error
-	ListTasks() []interface{}
-	ListRunningTasks() []interface{}
+	ListTasks() []*executor.Task
+	ListRunningTasks() []*executor.Task
 	GetStats() map[string]interface{}
 }
 
 // FileOpsInterface defines the interface for file operations
 type FileOpsInterface interface {
-	ExecuteOperation(ctx context.Context, op interface{}) (map[string]interface{}, error)
-	GetTransfer(transferID string) (interface{}, error)
+	ExecuteOperation(ctx context.Context, op *fileops.Operation) (map[string]interface{}, error)
+	GetTransfer(transferID string) (*fileops.Transfer, error)
 	CancelTransfer(transferID string) error
 	CalculateChecksum(path string, algorithm string) (string, error)
 }

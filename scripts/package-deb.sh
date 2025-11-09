@@ -13,7 +13,7 @@ NC='\033[0m'
 APP_NAME="ducla-agent"
 VERSION=${VERSION:-$(git describe --tags --always --dirty 2>/dev/null | sed 's/^v//' || echo "1.0.0")}
 ARCH=${ARCH:-amd64}
-MAINTAINER="Ducla Team <team@ducla.cloud>"
+MAINTAINER="mandỵhades <mandỵhades@hotmail.com.vn>"
 
 DEB_BUILD_DIR="build/deb"
 PACKAGE_NAME="${APP_NAME}_${VERSION}_${ARCH}"

@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"encoding/json"
-	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
@@ -92,7 +92,7 @@ func (t *GRPCTransport) Connect(ctx context.Context) error {
 	opts = append(opts, grpc.WithBlock())
 	
 	// Setup keepalive
-	opts = append(opts, grpc.WithKeepaliveParams(grpc.KeepaliveParams{
+	opts = append(opts, grpc.WithKeepaliveParams(keepalive.ClientParameters{
 		Time:                30 * time.Second,
 		Timeout:             5 * time.Second,
 		PermitWithoutStream: true,

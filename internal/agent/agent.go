@@ -6,13 +6,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ducla/cloud-agent/internal/api"
-	"github.com/ducla/cloud-agent/internal/config"
-	"github.com/ducla/cloud-agent/internal/executor"
-	"github.com/ducla/cloud-agent/internal/fileops"
-	"github.com/ducla/cloud-agent/internal/health"
-	"github.com/ducla/cloud-agent/internal/metrics"
-	"github.com/ducla/cloud-agent/internal/transport"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/api"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/config"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/executor"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/fileops"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/health"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/metrics"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/transport"
 	"github.com/sirupsen/logrus"
 )
 
@@ -48,12 +48,14 @@ func New(cfg *config.Config, logger *logrus.Logger) (*Agent, error) {
 		services: make([]Service, 0),
 	}
 
-	// Initialize transport layer
-	transportClient, err := transport.New(cfg.Master, logger)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create transport: %w", err)
+	// Initialize transport layer (only if master URL is provided)
+	if cfg.Master.URL != "" {
+		transportClient, err := transport.New(cfg.Master, logger)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create transport: %w", err)
+		}
+		agent.transport = transportClient
 	}
-	agent.transport = transportClient
 
 	// Initialize executor
 	executorInstance, err := executor.New(cfg.Executor, logger)
@@ -124,11 +126,15 @@ func (a *Agent) Start(ctx context.Context) error {
 		a.logger.WithField("service", service.Name()).Info("Service started successfully")
 	}
 
-	// Connect to master server
-	if err := a.transport.Connect(ctx); err != nil {
-		a.logger.WithError(err).Error("Failed to connect to master server")
-		a.stopServices(ctx)
-		return fmt.Errorf("failed to connect to master: %w", err)
+	// Connect to master server (if transport is configured)
+	if a.transport != nil {
+		if err := a.transport.Connect(ctx); err != nil {
+			a.logger.WithError(err).Error("Failed to connect to master server")
+			a.stopServices(ctx)
+			return fmt.Errorf("failed to connect to master: %w", err)
+		}
+	} else {
+		a.logger.Info("Running in standalone mode (no master server)")
 	}
 
 	// Start heartbeat
@@ -154,9 +160,11 @@ func (a *Agent) Stop(ctx context.Context) error {
 
 	a.logger.Info("Stopping Ducla Cloud Agent")
 
-	// Disconnect from master
-	if err := a.transport.Disconnect(); err != nil {
-		a.logger.WithError(err).Error("Error disconnecting from master")
+	// Disconnect from master (if transport is configured)
+	if a.transport != nil {
+		if err := a.transport.Disconnect(); err != nil {
+			a.logger.WithError(err).Error("Error disconnecting from master")
+		}
 	}
 
 	// Stop all services
@@ -200,6 +208,12 @@ func (a *Agent) heartbeatLoop(ctx context.Context) {
 
 // messageLoop handles incoming messages from the master server
 func (a *Agent) messageLoop(ctx context.Context) {
+	// Skip message loop if no transport (standalone mode)
+	if a.transport == nil {
+		<-ctx.Done()
+		return
+	}
+	
 	for {
 		select {
 		case <-ctx.Done():
@@ -219,6 +233,11 @@ func (a *Agent) messageLoop(ctx context.Context) {
 
 // sendHeartbeat sends a heartbeat message to the master server
 func (a *Agent) sendHeartbeat() error {
+	// Skip heartbeat if no transport (standalone mode)
+	if a.transport == nil {
+		return nil
+	}
+	
 	heartbeat := &transport.Message{
 		Type: transport.MessageTypeHeartbeat,
 		Data: map[string]interface{}{
@@ -275,7 +294,12 @@ func (a *Agent) handleTaskMessage(ctx context.Context, message *transport.Messag
 		Type:      transport.MessageTypeTaskResult,
 		ID:        message.ID,
 		ReplyTo:   message.ID,
-		Data:      result,
+		Data:      map[string]interface{}{
+			"task_id": result.TaskID,
+			"status":  result.Status,
+			"output":  result.Output,
+			"error":   result.Error,
+		},
 	}
 
 	if err := a.transport.SendMessage(response); err != nil {
@@ -379,22 +403,22 @@ func (a *Agent) GetConfig() *config.Config {
 }
 
 // GetExecutor returns the task executor
-func (a *Agent) GetExecutor() *executor.Executor {
+func (a *Agent) GetExecutor() api.ExecutorInterface {
 	return a.executor
 }
 
 // GetFileOps returns the file operations manager
-func (a *Agent) GetFileOps() *fileops.Manager {
+func (a *Agent) GetFileOps() api.FileOpsInterface {
 	return a.fileops
 }
 
 // GetHealth returns the health checker
-func (a *Agent) GetHealth() *health.Checker {
+func (a *Agent) GetHealth() api.HealthInterface {
 	return a.health
 }
 
 // GetMetrics returns the metrics collector
-func (a *Agent) GetMetrics() *metrics.Collector {
+func (a *Agent) GetMetrics() api.MetricsInterface {
 	return a.metrics
 }
 

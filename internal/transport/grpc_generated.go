@@ -6,7 +6,6 @@ package transport
 
 import (
 	"context"
-	"io"
 
 	"google.golang.org/grpc"
 )

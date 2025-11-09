@@ -1,0 +1,68 @@
+# Simple test configuration for Ducla Cloud Agent
+
+agent:
+  id: "test-agent"
+  name: "Test Agent"
+  environment: "development"
+  region: "local"
+  zone: "local-1"
+  capabilities:
+    - "file_operations"
+    - "task_execution"
+
+master:
+  url: "http://localhost:9000"
+  token: "test-token"
+  connect_timeout: 30s
+  heartbeat_interval: 30s
+  reconnect_interval: 10s
+  max_reconnect_attempts: 3
+  tls_skip_verify: true
+
+api:
+  http:
+    enabled: true
+    address: "127.0.0.1"
+    port: 8080
+    tls:
+      enabled: false
+  grpc:
+    enabled: false
+
+security:
+  auth:
+    enabled: false
+  rbac:
+    enabled: false
+  audit:
+    enabled: false
+
+storage:
+  data_dir: "./data"
+  temp_dir: "./tmp"
+  cleanup:
+    enabled: true
+    interval: 1h
+    max_age: 24h
+
+logging:
+  level: "info"
+  format: "text"
+  output: "stdout"
+
+metrics:
+  enabled: true
+  address: "127.0.0.1"
+  port: 9090
+  path: "/metrics"
+
+health:
+  enabled: true
+  address: "127.0.0.1"
+  port: 8081
+  path: "/health"
+
+executor:
+  workers: 2
+  queue_size: 100
+  task_timeout: 300s

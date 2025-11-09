@@ -1,0 +1,65 @@
+# Ducla Cloud Agent - Default Configuration
+
+agent:
+  id: "ducla-agent"
+  name: "Ducla Cloud Agent"
+  environment: "development"
+  region: "local"
+  capabilities:
+    - "file_operations"
+    - "task_execution"
+    - "system_monitoring"
+
+# No master server for standalone mode
+master:
+  url: ""
+  token: ""
+  max_reconnect_attempts: 0
+
+api:
+  http:
+    enabled: true
+    address: "127.0.0.1"
+    port: 8080
+    tls:
+      enabled: false
+  grpc:
+    enabled: false
+
+security:
+  auth:
+    enabled: false
+  rbac:
+    enabled: false
+  audit:
+    enabled: false
+
+storage:
+  data_dir: "./data"
+  temp_dir: "./tmp"
+  cleanup:
+    enabled: true
+    interval: 1h
+    max_age: 24h
+
+logging:
+  level: "info"
+  format: "text"
+  output: "stdout"
+
+metrics:
+  enabled: true
+  address: "127.0.0.1"
+  port: 9090
+  path: "/metrics"
+
+health:
+  enabled: true
+  address: "127.0.0.1"
+  port: 8081
+  path: "/health"
+
+executor:
+  workers: 5
+  queue_size: 100
+  task_timeout: 300s

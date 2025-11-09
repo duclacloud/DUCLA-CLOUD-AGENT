@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ducla/cloud-agent/internal/config"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/config"
 	"github.com/sirupsen/logrus"
 )
 

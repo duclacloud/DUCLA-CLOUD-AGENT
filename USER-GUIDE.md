@@ -322,7 +322,9 @@ actions:
 
 ```bash
 # Tải package
-wget https://github.com/duclacloud/DUCLA-CLOUD-AGENT/releases/download/v1.0.0/ducla-agent_1.0.0_amd64.deb
+#wget https://github.com/duclacloud/DUCLA-CLOUD-AGENT/releases/download/v1.0.0/ducla-agent_1.0.0_amd64.deb
+Sử dụng guide sau để install:
+https://www.linkedin.com/pulse/user-guide-ducla-cloud-agent-le-anh-duc-0eqyc/?published=t
 
 # Cài đặt
 sudo dpkg -i ducla-agent_1.0.0_amd64.deb

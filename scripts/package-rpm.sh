@@ -11,7 +11,7 @@ NC='\033[0m'
 
 # Configuration
 APP_NAME="ducla-agent"
-VERSION=${VERSION:-$(git describe --tags --always --dirty 2>/dev/null | sed 's/^v//' || echo "1.0.0")}
+VERSION=${VERSION:-$(git describe --tags --always --dirty 2>/dev/null | sed 's/^v//' | sed 's/-/_/g' || echo "1.0.0")}
 RELEASE=${RELEASE:-1}
 ARCH=${ARCH:-x86_64}
 
@@ -102,8 +102,8 @@ logging:
 EOFCONFIG
 
 # Install systemd service
-mkdir -p %{buildroot}%{_unitdir}
-cat > %{buildroot}%{_unitdir}/${APP_NAME}.service <<'EOFSERVICE'
+mkdir -p %{buildroot}/usr/lib/systemd/system
+cat > %{buildroot}/usr/lib/systemd/system/${APP_NAME}.service <<'EOFSERVICE'
 [Unit]
 Description=Ducla Cloud Agent
 After=network.target
@@ -113,7 +113,7 @@ Documentation=https://github.com/your-org/ducla-cloud-agent
 Type=simple
 User=ducla
 Group=ducla
-ExecStart=%{_bindir}/${APP_NAME} --config %{_sysconfdir}/ducla/agent.yaml
+ExecStart=/usr/bin/${APP_NAME} --config /etc/ducla/agent.yaml
 Restart=on-failure
 RestartSec=10s
 
@@ -150,9 +150,9 @@ exit 0
 %systemd_postun_with_restart ${APP_NAME}.service
 
 %files
-%{_bindir}/${APP_NAME}
-%config(noreplace) %{_sysconfdir}/ducla/agent.yaml
-%{_unitdir}/${APP_NAME}.service
+/usr/bin/${APP_NAME}
+%config(noreplace) /etc/ducla/agent.yaml
+/usr/lib/systemd/system/${APP_NAME}.service
 %dir %attr(0755,ducla,ducla) /opt/ducla
 %dir %attr(0755,ducla,ducla) /opt/ducla/data
 %dir %attr(0755,ducla,ducla) /var/log/ducla

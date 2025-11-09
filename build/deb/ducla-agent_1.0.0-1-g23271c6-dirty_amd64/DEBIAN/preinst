@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+# Create user and group
+if ! getent group ducla >/dev/null; then
+    addgroup --system ducla
+fi
+
+if ! getent passwd ducla >/dev/null; then
+    adduser --system --ingroup ducla --home /opt/ducla \
+            --no-create-home --shell /usr/sbin/nologin \
+            --gecos "Ducla Cloud Agent" ducla
+fi
+
+exit 0

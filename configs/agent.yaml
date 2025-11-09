@@ -2,8 +2,8 @@
 
 # Agent identification and metadata
 agent:
-  id: "${HOSTNAME}"                    # Agent unique identifier
-  name: "${HOSTNAME}"                  # Human-readable agent name
+  id: "ducla-agent-001"                # Agent unique identifier
+  name: "Ducla Agent 001"              # Human-readable agent name
   environment: "${DUCLA_ENVIRONMENT:-production}"  # Environment (dev, staging, prod)
   region: "${DUCLA_REGION:-us-east-1}" # Geographic region
   zone: "${DUCLA_ZONE:-us-east-1a}"    # Availability zone
@@ -17,10 +17,10 @@ agent:
     - "system_monitoring"
     - "container_management"
 
-# Master server connection settings
+# Master server connection settings (optional for standalone mode)
 master:
-  url: "${DUCLA_MASTER_URL}"           # Master server URL (required)
-  token: "${DUCLA_AGENT_TOKEN}"        # Authentication token (required)
+  url: ""                              # Master server URL (leave empty for standalone)
+  token: ""                            # Authentication token
   connect_timeout: 30s                 # Connection timeout
   heartbeat_interval: 30s              # Heartbeat frequency
   reconnect_interval: 10s              # Reconnect attempt interval

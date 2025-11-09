@@ -1,0 +1,38 @@
+groups:
+  - name: ducla-agent
+    rules:
+      - alert: DuclaAgentDown
+        expr: up{job="ducla-agent"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Ducla Agent is down"
+          description: "Ducla Agent has been down for more than 1 minute."
+
+      - alert: DuclaAgentHighMemory
+        expr: process_resident_memory_bytes{job="ducla-agent"} > 100000000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Ducla Agent high memory usage"
+          description: "Ducla Agent memory usage is above 100MB for more than 5 minutes."
+
+      - alert: DuclaAgentHighTaskQueue
+        expr: ducla_tasks_queue_size > 50
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Ducla Agent high task queue"
+          description: "Ducla Agent task queue has more than 50 pending tasks."
+
+      - alert: DuclaAgentAPIErrors
+        expr: rate(ducla_http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Ducla Agent API errors"
+          description: "Ducla Agent API error rate is above 10% for more than 2 minutes."

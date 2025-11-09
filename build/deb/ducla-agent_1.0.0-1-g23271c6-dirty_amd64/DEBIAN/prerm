@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+# Stop service
+systemctl stop ducla-agent.service || true
+
+exit 0

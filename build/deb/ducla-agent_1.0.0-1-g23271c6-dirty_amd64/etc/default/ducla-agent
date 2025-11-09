@@ -1,0 +1,7 @@
+# Ducla Cloud Agent environment variables
+# Uncomment and set these values
+
+# DUCLA_MASTER_URL=https://master.ducla.cloud
+# DUCLA_AGENT_TOKEN=your-token-here
+# DUCLA_JWT_SECRET=your-secret-here
+# DUCLA_LOG_LEVEL=info

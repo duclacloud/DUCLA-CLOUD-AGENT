@@ -1,0 +1,97 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Ducla Cloud Agent Dashboard",
+    "tags": ["ducla", "monitoring"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Agent Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"ducla-agent\"}",
+            "legendFormat": "Agent Up"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "API Requests Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(ducla_http_requests_total[5m])",
+            "legendFormat": "{{method}} {{endpoint}}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Task Execution",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "ducla_tasks_total",
+            "legendFormat": "Total Tasks"
+          },
+          {
+            "expr": "ducla_tasks_running",
+            "legendFormat": "Running Tasks"
+          },
+          {
+            "expr": "ducla_tasks_completed",
+            "legendFormat": "Completed Tasks"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Memory Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes{job=\"ducla-agent\"}",
+            "legendFormat": "Memory Usage"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 5,
+        "title": "CPU Usage",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(process_cpu_seconds_total{job=\"ducla-agent\"}[5m])",
+            "legendFormat": "CPU Usage"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

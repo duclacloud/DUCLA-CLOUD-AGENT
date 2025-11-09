@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+
+# Set ownership
+chown -R ducla:ducla /opt/ducla /var/log/ducla
+
+# Reload systemd
+systemctl daemon-reload
+
+# Enable service
+systemctl enable ducla-agent.service || true
+
+echo ""
+echo "Ducla Cloud Agent installed successfully!"
+echo ""
+echo "Next steps:"
+echo "1. Edit configuration: /etc/ducla/agent.yaml"
+echo "2. Set environment variables in /etc/default/ducla-agent"
+echo "3. Start the service: systemctl start ducla-agent"
+echo "4. Check status: systemctl status ducla-agent"
+echo ""
+
+exit 0

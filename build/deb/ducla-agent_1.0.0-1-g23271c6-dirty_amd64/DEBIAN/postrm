@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+if [ "$1" = "purge" ]; then
+    # Remove user and group
+    if getent passwd ducla >/dev/null; then
+        deluser ducla || true
+    fi
+    
+    if getent group ducla >/dev/null; then
+        delgroup ducla || true
+    fi
+    
+    # Remove data directories
+    rm -rf /opt/ducla /var/log/ducla /etc/ducla
+fi
+
+# Reload systemd
+systemctl daemon-reload || true
+
+exit 0

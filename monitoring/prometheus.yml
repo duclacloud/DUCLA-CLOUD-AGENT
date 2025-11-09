@@ -1,0 +1,48 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  # Ducla Cloud Agent metrics
+  - job_name: 'ducla-agent'
+    static_configs:
+      - targets: ['ducla-agent:9090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    
+  # Ducla Agent API health
+  - job_name: 'ducla-agent-api'
+    static_configs:
+      - targets: ['ducla-agent:8080']
+    scrape_interval: 30s
+    metrics_path: /api/v1/metrics
+    
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+      
+  # Node Exporter (system metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+      
+  # cAdvisor (container metrics)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 30s
+    
+  # AlertManager
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']

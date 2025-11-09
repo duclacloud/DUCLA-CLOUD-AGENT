@@ -1,0 +1,18 @@
+Package: ducla-agent
+Version: 1.0.0-1-g23271c6-dirty
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: mandỵhades <mandỵhades@hotmail.com.vn>
+Description: Ducla Cloud Agent for distributed task execution
+ Ducla Cloud Agent is a high-performance agent for distributed task execution,
+ system monitoring, and cloud resource management.
+ .
+ Features:
+  - High performance with low resource usage
+  - Secure with JWT authentication and RBAC
+  - Built-in metrics and health checks
+  - Plugin system for extensibility
+  - Multi-protocol support (HTTP REST and gRPC)
+Homepage: https://github.com/your-org/ducla-cloud-agent
+Depends: systemd

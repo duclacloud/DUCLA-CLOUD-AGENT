@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/executor"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/fileops"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -86,8 +88,14 @@ func (s *AgentService) SubmitTask(ctx context.Context, req *TaskRequest) (*TaskR
 		"metadata":    req.Metadata,
 	}
 
+	// Convert to Task struct
+	task, err := convertMapToTask(taskData)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "failed to parse task: %v", err)
+	}
+
 	// Submit task
-	taskID, err := s.agent.GetExecutor().SubmitTask(taskData)
+	taskID, err := s.agent.GetExecutor().SubmitTask(task)
 	if err != nil {
 		s.logger.WithError(err).Error("Failed to submit task")
 		return nil, status.Errorf(codes.Internal, "failed to submit task: %v", err)
@@ -104,7 +112,7 @@ func (s *AgentService) SubmitTask(ctx context.Context, req *TaskRequest) (*TaskR
 func (s *AgentService) GetTask(ctx context.Context, req *TaskDetailRequest) (*TaskDetailResponse, error) {
 	s.logger.WithField("task_id", req.TaskId).Debug("GetTask called")
 
-	task, err := s.agent.GetExecutor().GetTask(req.TaskId)
+	_, err := s.agent.GetExecutor().GetTask(req.TaskId)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "task not found: %v", err)
 	}
@@ -136,7 +144,7 @@ func (s *AgentService) CancelTask(ctx context.Context, req *TaskDetailRequest) (
 func (s *AgentService) ListTasks(ctx context.Context, req *ListTasksRequest) (*ListTasksResponse, error) {
 	s.logger.Debug("ListTasks called")
 
-	var tasks []interface{}
+	var tasks []*executor.Task
 	if req.Filter == "running" {
 		tasks = s.agent.GetExecutor().ListRunningTasks()
 	} else {
@@ -145,7 +153,7 @@ func (s *AgentService) ListTasks(ctx context.Context, req *ListTasksRequest) (*L
 
 	// Convert tasks to response format
 	taskList := make([]*TaskSummary, 0, len(tasks))
-	for _, task := range tasks {
+	for range tasks {
 		// This would need proper type conversion
 		taskList = append(taskList, &TaskSummary{
 			TaskId: "task-id", // Would come from actual task
@@ -177,8 +185,14 @@ func (s *AgentService) ExecuteFileOperation(ctx context.Context, req *FileOperat
 		"metadata":    req.Metadata,
 	}
 
+	// Parse operation
+	operation, err := fileops.ParseOperation(opData)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "failed to parse operation: %v", err)
+	}
+
 	// Execute operation
-	result, err := s.agent.GetFileOps().ExecuteOperation(ctx, opData)
+	result, err := s.agent.GetFileOps().ExecuteOperation(ctx, operation)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to execute file operation: %v", err)
 	}
@@ -194,7 +208,7 @@ func (s *AgentService) ExecuteFileOperation(ctx context.Context, req *FileOperat
 func (s *AgentService) GetTransferStatus(ctx context.Context, req *TransferStatusRequest) (*TransferStatusResponse, error) {
 	s.logger.WithField("transfer_id", req.TransferId).Debug("GetTransferStatus called")
 
-	transfer, err := s.agent.GetFileOps().GetTransfer(req.TransferId)
+	_, err := s.agent.GetFileOps().GetTransfer(req.TransferId)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "transfer not found: %v", err)
 	}
@@ -280,4 +294,53 @@ func convertToStringMap(data map[string]interface{}) map[string]string {
 		result[key] = fmt.Sprintf("%v", value)
 	}
 	return result
+}
+
+// convertMapToTask converts a map to Task struct
+func convertMapToTask(data map[string]interface{}) (*executor.Task, error) {
+	task := &executor.Task{}
+	
+	if id, ok := data["id"].(string); ok {
+		task.ID = id
+	}
+	
+	if taskType, ok := data["type"].(string); ok {
+		task.Type = executor.TaskType(taskType)
+	}
+	
+	if name, ok := data["name"].(string); ok {
+		task.Name = name
+	}
+	
+	if command, ok := data["command"].(string); ok {
+		task.Command = command
+	}
+	
+	if args, ok := data["args"].([]interface{}); ok {
+		task.Args = make([]string, len(args))
+		for i, arg := range args {
+			if str, ok := arg.(string); ok {
+				task.Args[i] = str
+			}
+		}
+	}
+	
+	if env, ok := data["env"].(map[string]interface{}); ok {
+		task.Env = make(map[string]string)
+		for k, v := range env {
+			if str, ok := v.(string); ok {
+				task.Env[k] = str
+			}
+		}
+	}
+	
+	if workingDir, ok := data["working_dir"].(string); ok {
+		task.WorkingDir = workingDir
+	}
+	
+	if metadata, ok := data["metadata"].(map[string]interface{}); ok {
+		task.Metadata = metadata
+	}
+	
+	return task, nil
 }

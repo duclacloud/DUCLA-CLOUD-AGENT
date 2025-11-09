@@ -9,27 +9,40 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ducla/cloud-agent/internal/agent"
-	"github.com/ducla/cloud-agent/internal/config"
-	"github.com/ducla/cloud-agent/pkg/utils/logger"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/agent"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/config"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	var (
-		configFile = flag.String("config", "/etc/ducla/agent.yaml", "Configuration file path")
+		configFile = flag.String("config", "", "Configuration file path")
 		showVer    = flag.Bool("version", false, "Show version information")
 		debug      = flag.Bool("debug", false, "Enable debug logging")
+		help       = flag.Bool("help", false, "Show help information")
 	)
 	flag.Parse()
+
+	if *help {
+		showCLIHelp()
+		os.Exit(0)
+	}
 
 	if *showVer {
 		PrintVersion()
 		os.Exit(0)
 	}
 
+	// Check for CLI commands
+	args := flag.Args()
+	if len(args) > 0 {
+		// Handle CLI commands
+		handleCLICommands(args, *configFile, *debug)
+		return
+	}
+
 	// Initialize logger
-	log := logger.New()
+	log := logrus.New()
 	if *debug {
 		log.SetLevel(logrus.DebugLevel)
 	}
@@ -40,6 +53,18 @@ func main() {
 		"build_time": versionInfo.BuildTime,
 		"git_commit": versionInfo.GitCommit,
 	}).Info("Starting Ducla Cloud Agent")
+
+	// Determine config file path
+	if *configFile == "" {
+		// Try current directory first, then system locations
+		if _, err := os.Stat("agent.yaml"); err == nil {
+			*configFile = "agent.yaml"
+		} else if _, err := os.Stat("/etc/ducla/agent.yaml"); err == nil {
+			*configFile = "/etc/ducla/agent.yaml"
+		} else {
+			*configFile = "agent.yaml" // Use default
+		}
+	}
 
 	// Load configuration
 	cfg, err := config.Load(*configFile)
@@ -94,4 +119,64 @@ func main() {
 	}
 
 	log.Info("Agent stopped successfully")
+}
+
+// handleCLICommands processes CLI commands
+func handleCLICommands(args []string, configFile string, debug bool) {
+	// Initialize logger for CLI
+	log := logrus.New()
+	if debug {
+		log.SetLevel(logrus.DebugLevel)
+	}
+
+	// Determine config file path
+	if configFile == "" {
+		// Try current directory first, then system locations
+		if _, err := os.Stat("agent.yaml"); err == nil {
+			configFile = "agent.yaml"
+		} else if _, err := os.Stat("/etc/ducla/agent.yaml"); err == nil {
+			configFile = "/etc/ducla/agent.yaml"
+		} else {
+			configFile = "agent.yaml" // Use default even if not exists
+		}
+	}
+
+	// Load configuration for CLI commands
+	cfg, err := config.Load(configFile)
+	if err != nil {
+		// For CLI commands, try to use default config if file doesn't exist
+		cfg = &config.Config{
+			Agent: config.AgentConfig{
+				ID: "cli-agent",
+				Name: "CLI Agent",
+			},
+			API: config.APIConfig{
+				HTTP: config.HTTPConfig{
+					Address: "127.0.0.1",
+					Port: 8080,
+				},
+			},
+			Health: config.HealthConfig{
+				Address: "127.0.0.1",
+				Port: 8081,
+			},
+			Metrics: config.MetricsConfig{
+				Address: "127.0.0.1",
+				Port: 9090,
+			},
+		}
+		
+		// Only show warning for config-dependent commands that need actual config
+		if (args[0] == "show" && len(args) > 1 && (args[1] == "status" || args[1] == "health" || args[1] == "metrics")) ||
+		   args[0] == "task" || args[0] == "file" || 
+		   (args[0] == "config" && len(args) > 1 && args[1] == "test") {
+			log.WithError(err).Warn("Could not load configuration, using defaults")
+		}
+	}
+
+	// Handle the CLI command
+	if err := handleCLICommand(args, cfg, log); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		os.Exit(1)
+	}
 }

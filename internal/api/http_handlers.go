@@ -2,10 +2,12 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/executor"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/fileops"
 )
 
 // Response represents a standard API response
@@ -133,7 +135,7 @@ func (s *Server) handleTasks(w http.ResponseWriter, r *http.Request) {
 	// Get query parameters
 	filter := r.URL.Query().Get("filter")
 
-	var tasks []interface{}
+	var tasks []*executor.Task
 	if filter == "running" {
 		tasks = s.agent.GetExecutor().ListRunningTasks()
 	} else {
@@ -163,8 +165,15 @@ func (s *Server) handleTaskSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Convert to Task struct
+	task, err := convertMapToTask(taskData)
+	if err != nil {
+		s.respondError(w, http.StatusBadRequest, "Invalid task data: "+err.Error())
+		return
+	}
+
 	// Submit task
-	taskID, err := s.agent.GetExecutor().SubmitTask(taskData)
+	taskID, err := s.agent.GetExecutor().SubmitTask(task)
 	if err != nil {
 		s.respondError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -183,7 +192,7 @@ func (s *Server) handleTaskSubmit(w http.ResponseWriter, r *http.Request) {
 // handleTaskDetail handles task detail requests
 func (s *Server) handleTaskDetail(w http.ResponseWriter, r *http.Request) {
 	// Extract task ID from path
-	path := strings.TrimPrefix(r.Path, "/api/v1/tasks/")
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/tasks/")
 	taskID := strings.Split(path, "/")[0]
 
 	if taskID == "" {
@@ -242,8 +251,15 @@ func (s *Server) handleFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Parse operation
+	operation, err := fileops.ParseOperation(opData)
+	if err != nil {
+		s.respondError(w, http.StatusBadRequest, "Invalid operation: "+err.Error())
+		return
+	}
+
 	// Execute file operation
-	result, err := s.agent.GetFileOps().ExecuteOperation(r.Context(), opData)
+	result, err := s.agent.GetFileOps().ExecuteOperation(r.Context(), operation)
 	if err != nil {
 		s.respondError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -319,7 +335,7 @@ func (s *Server) handleTransferStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract transfer ID from path
-	path := strings.TrimPrefix(r.Path, "/api/v1/files/transfer/")
+	path := strings.TrimPrefix(r.URL.Path, "/api/v1/files/transfer/")
 	transferID := strings.Split(path, "/")[0]
 
 	if transferID == "" {

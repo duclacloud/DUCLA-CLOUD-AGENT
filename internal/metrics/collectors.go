@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 )
 
 // getCPUMetrics returns CPU usage and load average
@@ -115,7 +116,7 @@ func getDarwinMemoryMetrics() (total, used uint64) {
 	}
 
 	lines := strings.Split(string(output), "\n")
-	var freePages, activePages, inactivePages, wiredPages uint64
+	var activePages, inactivePages, wiredPages uint64
 
 	for _, line := range lines {
 		fields := strings.Fields(line)
@@ -125,9 +126,7 @@ func getDarwinMemoryMetrics() (total, used uint64) {
 
 		value, _ := strconv.ParseUint(strings.TrimSuffix(fields[2], "."), 10, 64)
 
-		if strings.Contains(line, "Pages free:") {
-			freePages = value
-		} else if strings.Contains(line, "Pages active:") {
+		if strings.Contains(line, "Pages active:") {
 			activePages = value
 		} else if strings.Contains(line, "Pages inactive:") {
 			inactivePages = value

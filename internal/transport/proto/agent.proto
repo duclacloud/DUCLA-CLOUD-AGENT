@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package transport;
 
-option go_package = "github.com/ducla/cloud-agent/internal/transport";
+option go_package = "github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/transport";
 
 // AgentService defines the gRPC service for agent-master communication
 service AgentService {

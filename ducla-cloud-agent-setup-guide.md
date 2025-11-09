@@ -661,8 +661,8 @@ storage:
 ## Support và Documentation
 
 - **Documentation**: `docs/` directory
-- **GitHub Issues**: https://github.com/your-org/ducla-cloud-agent/issues
-- **GitHub Discussions**: https://github.com/your-org/ducla-cloud-agent/discussions
+- **GitHub Issues**: https://github.com/duclacloud/DUCLA-CLOUD-AGENT/issues
+- **GitHub Discussions**: https://github.com/duclacloud/DUCLA-CLOUD-AGENT/discussions
 
 ## License
 

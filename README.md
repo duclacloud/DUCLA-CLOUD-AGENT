@@ -1,4 +1,8 @@
-# Ducla Cloud Agent
+# 🚀 DUCLA CLOUD AGENT
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Version](https://img.shields.io/badge/Go-1.21+-blue.svg)](https://golang.org)
+[![Release](https://img.shields.io/badge/Release-v1.0.0-green.svg)](https://github.com/duclacloud/DUCLA-CLOUD-AGENT/releases)
 
 A high-performance, production-ready cloud agent for distributed task execution and system monitoring.
 
@@ -33,7 +37,7 @@ docker-compose logs -f
 
 ```bash
 # Download latest release
-curl -L https://github.com/your-org/ducla-cloud-agent/releases/latest/download/ducla-agent-linux-amd64.tar.gz | tar xz
+curl -L https://github.com/duclacloud/DUCLA-CLOUD-AGENT/releases/latest/download/ducla-agent-linux-amd64.tar.gz | tar xz
 
 # Run the agent
 ./ducla-agent --config configs/agent.yaml
@@ -63,7 +67,7 @@ sudo systemctl start ducla-agent
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/ducla-cloud-agent.git
+git clone https://github.com/duclacloud/DUCLA-CLOUD-AGENT.git
 cd ducla-cloud-agent
 
 # Build for current platform
@@ -186,6 +190,28 @@ The agent supports plugins for extended functionality:
 - **Kubernetes**: Pod and service management
 - **AWS**: AWS service integration
 
+## 🌐 REST API
+
+Ducla Cloud Agent provides comprehensive REST APIs:
+
+- **Main API (Port 8080)**: Task management, file operations, agent status
+- **Health API (Port 8081)**: Health checks, readiness, liveness
+- **Metrics API (Port 9090)**: Prometheus metrics, system uptime
+
+### Quick API Examples
+```bash
+# Agent status
+curl http://localhost:8080/api/v1/status
+
+# Health check
+curl http://localhost:8081/health
+
+# Prometheus metrics
+curl http://localhost:9090/metrics
+```
+
+**📖 Complete API Reference**: See [API-REFERENCE.md](API-REFERENCE.md) for full REST API documentation and output destinations.
+
 ## Architecture
 
 ```
@@ -204,18 +230,44 @@ ducla-cloud-agent/
 ├── configs/           # Configuration files
 ├── scripts/           # Build and deployment scripts
 ├── k8s/              # Kubernetes manifests
-└── docs/             # Documentation
+├── docs/             # Documentation
+└── API-REFERENCE.md   # Complete REST API documentation
 ```
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
 
-## License
+### Quick Start for Contributors
 
-[MIT License](LICENSE)
+```bash
+# Fork and clone
+git clone https://github.com/YOUR_USERNAME/DUCLA-CLOUD-AGENT.git
+cd DUCLA-CLOUD-AGENT
 
-## Support
+# Build and test
+./build-v1.sh
+./demo-auto.sh
 
-- Documentation: [docs/](docs/)
-- Issues: [GitHub Issues](https://github.com/your-org/ducla-cloud-agent/issues)
+# Create feature branch
+git checkout -b feature/your-feature
+```
+
+## 📄 License
+
+[MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+**mandỵhades** - [mandỵhades@hotmail.com.vn](mailto:mandỵhades@hotmail.com.vn)
+
+## 🆘 Support
+
+- 📖 **Documentation**: [README-VI.md](README-VI.md) (Vietnamese)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/duclacloud/DUCLA-CLOUD-AGENT/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/duclacloud/DUCLA-CLOUD-AGENT/discussions)
+- 📧 **Email**: [mandỵhades@hotmail.com.vn](mailto:mandỵhades@hotmail.com.vn)
+
+## ⭐ Show Your Support
+
+Give a ⭐️ if this project helped you!

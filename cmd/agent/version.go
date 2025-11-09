@@ -5,15 +5,15 @@ import (
 	"runtime"
 )
 
+// Version information - set by build flags
 var (
-	// Version information (set by build flags)
-	Version   = "dev"
-	BuildTime = "unknown"
-	GitCommit = "unknown"
-	GoVersion = runtime.Version()
+	version   = "dev"
+	buildTime = "unknown"
+	gitCommit = "unknown"
+	goVersion = runtime.Version()
 )
 
-// VersionInfo contains version information
+// VersionInfo holds version information
 type VersionInfo struct {
 	Version   string `json:"version"`
 	BuildTime string `json:"build_time"`
@@ -26,16 +26,16 @@ type VersionInfo struct {
 // GetVersionInfo returns version information
 func GetVersionInfo() VersionInfo {
 	return VersionInfo{
-		Version:   Version,
-		BuildTime: BuildTime,
-		GitCommit: GitCommit,
-		GoVersion: GoVersion,
+		Version:   version,
+		BuildTime: buildTime,
+		GitCommit: gitCommit,
+		GoVersion: goVersion,
 		OS:        runtime.GOOS,
 		Arch:      runtime.GOARCH,
 	}
 }
 
-// PrintVersion prints version information
+// PrintVersion prints version information to stdout
 func PrintVersion() {
 	info := GetVersionInfo()
 	fmt.Printf("Ducla Cloud Agent\n")

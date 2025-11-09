@@ -1,0 +1,67 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+
+# Build artifacts
+dist/
+pkg/
+pkg-full/
+packaging/
+
+# Configuration files (keep examples and default)
+*.yaml
+!configs/*.yaml
+!*example*.yaml
+!*demo*.yaml
+!*test*.yaml
+!agent.yaml
+
+# Log files
+*.log
+agent.log
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Demo workspace
+demo-workspace/
+workshop-*/
+
+# Package build artifacts
+scripts-full/
+
+# Man page installation test
+/usr/share/man/man1/ducla-agent.1

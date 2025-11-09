@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ducla/cloud-agent/internal/cli"
+	"github.com/duclacloud/DUCLA-CLOUD-AGENT/internal/cli"
 	"github.com/spf13/cobra"
 )
 
